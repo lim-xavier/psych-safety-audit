@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Psychological Safety Audit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #2865af;
+    --orange: #f7931d;
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --soft: #f4f7fb;
+    --text: #1b2a3d;
+    --muted: #5b6b7f;
+    --line: #dbe3ee;
+    --blue-tint: #e8f0fa;
+    --orange-tint: #fff3e2;
+    --on-blue: #ffffff;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101823; --surface: #172231; --soft: #1b2a3d; --text: #eef3f9; --muted: #a2b1c4;
+      --line: #2c3d54; --blue-tint: #1d3556; --orange-tint: #3a2a14; --blue: #5b9be6; --on-blue: #0d1622;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101823; --surface: #172231; --soft: #1b2a3d; --text: #eef3f9; --muted: #a2b1c4;
+    --line: #2c3d54; --blue-tint: #1d3556; --orange-tint: #3a2a14; --blue: #5b9be6; --on-blue: #0d1622;
+  }
+  html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 16px); }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 17px; line-height: 1.55;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 40px 20px 72px; }
+
+  header { border-bottom: 1px solid var(--line); padding-bottom: 28px; margin-bottom: 8px; position: relative; }
+  header::before {
+    content: ""; display: block; width: 56px; height: 6px; border-radius: 3px;
+    background: var(--orange); margin-bottom: 22px;
+  }
+  h1 { font-size: clamp(2rem, 5vw, 2.9rem); line-height: 1.1; margin: 0 0 14px; color: var(--blue); font-weight: 700; letter-spacing: -0.02em; }
+  header p { margin: 0; max-width: 60ch; color: var(--muted); }
+
+  .note { margin-top: 20px; max-width: 62ch; background: var(--orange-tint); border-left: 5px solid var(--orange); border-radius: 8px; padding: 14px 18px; color: var(--text); font-size: .98rem; line-height: 1.5; }
+  .note strong { display: block; margin-bottom: 2px; }
+  .progress { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding: 14px 0 12px; display: flex; align-items: center; gap: 14px; }
+  .bar { flex: 1; height: 8px; background: var(--blue-tint); border-radius: 4px; overflow: hidden; }
+  .bar > span { display: block; height: 100%; width: 0; background: var(--blue); border-radius: 4px; transition: width .25s ease; }
+  .count { font-size: .9rem; color: var(--muted); font-weight: 500; white-space: nowrap; }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 10; }
+
+  fieldset.q { border: 0; border-bottom: 1px solid var(--line); margin: 0; padding: 26px 0 28px; min-width: 0; }
+  fieldset.q.missing legend { color: #b4560a; }
+  fieldset.q.missing .opts { outline: 2px solid var(--orange); outline-offset: 6px; border-radius: 10px; }
+  legend { padding: 0; font-weight: 600; font-size: 1.1rem; line-height: 1.4; margin-bottom: 16px; display: flex; gap: 14px; max-width: 100%; }
+  legend .n { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--blue-tint); color: var(--blue); display: grid; place-items: center; font-size: .9rem; font-weight: 700; }
+  fieldset.q.done legend .n { background: var(--blue); color: var(--on-blue); }
+  .opts { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .opt { position: relative; }
+  .opt input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+  .opt label {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 4px;
+    height: 100%; padding: 14px 6px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface);
+    transition: border-color .15s, background-color .15s, color .15s; pointer-events: none;
+  }
+  .opt .num { font-size: 1.35rem; font-weight: 700; line-height: 1; }
+  .opt .lab { font-size: .8rem; color: var(--muted); line-height: 1.25; }
+  .opt:hover label { border-color: var(--orange); }
+  .opt input:checked + label { background: var(--blue); border-color: var(--blue); color: var(--on-blue); }
+  .opt input:checked + label .lab { color: var(--on-blue); }
+  .opt input:focus-visible + label { outline: 3px solid var(--orange); outline-offset: 2px; }
+
+  .actions { margin-top: 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+  button { font: inherit; cursor: pointer; }
+  .btn { background: var(--orange); color: #1b2a3d; border: 0; border-radius: 10px; padding: 14px 28px; font-weight: 700; font-size: 1.05rem; transition: filter .15s, transform .1s; }
+  .btn:hover { filter: brightness(.95); }
+  .btn:active { transform: translateY(1px); }
+  .btn:focus-visible, .link:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+  .btn.secondary { background: var(--surface); color: var(--blue); border: 1.5px solid var(--blue); }
+  .link { background: none; border: 0; color: var(--blue); font-weight: 600; padding: 8px 4px; text-decoration: underline; text-underline-offset: 3px; }
+  .msg { color: #b4560a; font-weight: 600; margin: 0; }
+  :root[data-theme="dark"] .msg, :root[data-theme="dark"] fieldset.q.missing legend { color: var(--orange); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .msg, :root:not([data-theme="light"]) fieldset.q.missing legend { color: var(--orange); } }
+
+  /* results */
+  #results[hidden], #survey[hidden] { display: none; }
+  #results h2 { font-size: clamp(1.6rem, 4vw, 2.2rem); color: var(--blue); margin: 0 0 8px; line-height: 1.15; letter-spacing: -0.01em; }
+  #results .lead { color: var(--muted); margin: 0 0 28px; max-width: 62ch; }
+  .groups { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+  .group { min-width: 0; }
+  .ghead { border-top: 6px solid var(--line); padding-top: 14px; margin-bottom: 16px; }
+  .group.hi .ghead { border-top-color: var(--blue); }
+  .group.lo .ghead { border-top-color: var(--orange); }
+  .ghead h3 { margin: 0; font-size: 1.15rem; line-height: 1.25; }
+  .ghead h3 small { font-weight: 500; color: var(--muted); font-size: .9rem; margin-left: 6px; }
+  .prompt { margin: 10px 0 0; font-size: .95rem; line-height: 1.5; color: var(--text); font-weight: 500; }
+  .prompt span { display: block; }
+  .group ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .group li { background: var(--soft); border-radius: 10px; padding: 14px; font-size: .95rem; line-height: 1.45; }
+  .group.lo li { background: var(--orange-tint); }
+  .group.hi li { background: var(--blue-tint); }
+  .group li .score { display: inline-block; font-weight: 700; font-size: .8rem; padding: 2px 9px; border-radius: 99px; margin-bottom: 8px; background: var(--surface); border: 1px solid var(--line); }
+  .group li .qn { color: var(--muted); font-weight: 600; font-size: .8rem; margin-left: 8px; }
+  .group .empty { color: var(--muted); font-size: .95rem; padding: 14px; border: 1.5px dashed var(--line); border-radius: 10px; }
+
+  @media (max-width: 720px) {
+    .opts { grid-template-columns: 1fr; gap: 8px; }
+    .opt label { flex-direction: row; justify-content: flex-start; text-align: left; gap: 14px; padding: 12px 16px; }
+    .opt .num { width: 24px; text-align: center; }
+    .opt .lab { font-size: .95rem; }
+    .groups { grid-template-columns: 1fr; gap: 34px; }
+  }
+  @media print {
+    .actions, .progress { display: none; }
+    body::before { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <h1>Psychological Safety Audit</h1>
+    <div id="intro">
+      <p>Rate how true each statement is for your team today. When you finish, you will see your own results grouped by how you rated them.</p>
+      <div class="note" role="note">
+        <strong>This audit is anonymous.</strong>
+        <span>No names are asked, and your answers are not recorded or sent anywhere. It works best when each person on your team completes it separately, then you share and discuss your results together.</span>
+      </div>
+    </div>
+  </header>
+
+  <section id="survey" aria-label="Survey">
+    <div class="progress" aria-live="polite">
+      <div class="bar" aria-hidden="true"><span id="barfill"></span></div>
+      <div class="count" id="count">0 of 7 answered</div>
+    </div>
+    <div id="questions"></div>
+    <div class="actions">
+      <button class="btn" id="submit" type="button">Submit my ratings</button>
+      <p class="msg" id="err" role="alert" hidden></p>
+    </div>
+  </section>
+
+  <section id="results" hidden aria-label="Your results">
+    <h2 tabindex="-1" id="resTitle">Your results</h2>
+    <p class="lead">These results are yours alone. They are not saved and not combined with anyone else’s. Your ratings are split into two groups: higher (4–5) and lower (1–3). Use the questions under each heading to reflect on your answers.</p>
+    <div class="note" role="note" style="margin-bottom:28px">
+      <strong>Next step: analyse together</strong>
+      <span>Ask your teammates to complete the audit anonymously too, then compare your results in a team conversation. Start with the lower ratings and talk about what sits behind them, then name what is working well.</span>
+    </div>
+    <div class="groups">
+      <section class="group hi" aria-labelledby="hiTitle">
+        <div class="ghead">
+          <h3 id="hiTitle">Higher ratings<small>4–5</small></h3>
+          <p class="prompt"><span>What seems to be working well?</span><span>What behaviours or practices help make this possible?</span></p>
+        </div>
+        <div id="colHigh"></div>
+      </section>
+      <section class="group lo" aria-labelledby="loTitle">
+        <div class="ghead">
+          <h3 id="loTitle">Lower ratings<small>1–3</small></h3>
+          <p class="prompt"><span>Where might your team feel less safe?</span><span>What could be contributing to this?</span></p>
+        </div>
+        <div id="colLow"></div>
+      </section>
+    </div>
+    <div class="actions">
+      <button class="btn secondary" id="edit" type="button">Change my answers</button>
+      <button class="link" id="reset" type="button">Start again</button>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  var statements = [
+    "If someone makes a mistake in this team, it is treated as an opportunity to learn rather than held against them.",
+    "Team members can openly raise problems and difficult issues.",
+    "Team members respect and accept people who are different from them.",
+    "People feel safe taking interpersonal risks in this team.",
+    "Team members feel comfortable asking one another for help.",
+    "Team members support one another rather than deliberately undermining each other’s efforts.",
+    "Each person’s unique skills and talents are valued and used."
+  ];
+  var scale = [
+    "Not at all true", "Rarely true", "Sometimes true", "Mostly true", "Always true"
+  ];
+  var answers = new Array(statements.length).fill(null);
+
+  var qWrap = document.getElementById("questions");
+  var errEl = document.getElementById("err");
+  var survey = document.getElementById("survey");
+  var results = document.getElementById("results");
+  var intro = document.getElementById("intro");
+
+  function esc(s) { var d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+
+  function build() {
+    qWrap.innerHTML = "";
+    statements.forEach(function (text, i) {
+      var fs = document.createElement("fieldset");
+      fs.className = "q";
+      fs.id = "q" + i;
+      var html = '<legend><span class="n">' + (i + 1) + '</span><span>' + esc(text) + '</span></legend><div class="opts">';
+      scale.forEach(function (label, k) {
+        var v = k + 1;
+        var id = "q" + i + "_" + v;
+        html += '<div class="opt"><input type="radio" name="q' + i + '" id="' + id + '" value="' + v + '"' + (answers[i] === v ? " checked" : "") + '>' +
+                '<label for="' + id + '"><span class="num">' + v + '</span><span class="lab">' + label + '</span></label></div>';
+      });
+      html += "</div>";
+      fs.innerHTML = html;
+      fs.addEventListener("change", function (e) {
+        answers[i] = parseInt(e.target.value, 10);
+        fs.classList.remove("missing");
+        updateProgress();
+        errEl.hidden = true;
+      });
+      qWrap.appendChild(fs);
+    });
+    updateProgress();
+  }
+
+  function updateProgress() {
+    var done = answers.filter(function (a) { return a !== null; }).length;
+    document.getElementById("count").textContent = done + " of " + statements.length + " answered";
+    document.getElementById("barfill").style.width = (done / statements.length * 100) + "%";
+    statements.forEach(function (_, i) {
+      document.getElementById("q" + i).classList.toggle("done", answers[i] !== null);
+    });
+  }
+
+  function fill(colId, items) {
+    var el = document.getElementById(colId);
+    if (!items.length) { el.innerHTML = '<div class="empty">No statements in this group.</div>'; return; }
+    el.innerHTML = "<ul>" + items.map(function (it) {
+      return '<li><span class="score">Rated ' + it.score + '</span><span class="qn">Statement ' + (it.i + 1) + '</span><br>' + esc(it.text) + "</li>";
+    }).join("") + "</ul>";
+  }
+
+  function showResults() {
+    var low = [], high = [];
+    answers.forEach(function (a, i) {
+      var item = { i: i, text: statements[i], score: a };
+      if (a <= 3) low.push(item); else high.push(item);
+    });
+    fill("colHigh", high); fill("colLow", low);
+    survey.hidden = true; intro.hidden = true; results.hidden = false;
+    window.scrollTo({ top: 0 });
+    document.getElementById("resTitle").focus({ preventScroll: true });
+  }
+
+  document.getElementById("submit").addEventListener("click", function () {
+    var missing = [];
+    answers.forEach(function (a, i) { if (a === null) missing.push(i); });
+    statements.forEach(function (_, i) {
+      document.getElementById("q" + i).classList.toggle("missing", answers[i] === null);
+    });
+    if (missing.length) {
+      errEl.textContent = missing.length === 1
+        ? "Please rate statement " + (missing[0] + 1) + " before submitting."
+        : "Please rate the " + missing.length + " highlighted statements before submitting.";
+      errEl.hidden = false;
+      document.getElementById("q" + missing[0]).scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    showResults();
+  });
+
+  document.getElementById("edit").addEventListener("click", function () {
+    results.hidden = true; survey.hidden = false; intro.hidden = false;
+    window.scrollTo({ top: 0 });
+  });
+
+  document.getElementById("reset").addEventListener("click", function () {
+    answers = new Array(statements.length).fill(null);
+    build();
+    results.hidden = true; survey.hidden = false; intro.hidden = false;
+    errEl.hidden = true;
+    window.scrollTo({ top: 0 });
+  });
+
+  build();
+})();
+</script>
+</body>
+</html>
